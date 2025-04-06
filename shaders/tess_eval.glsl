@@ -20,6 +20,5 @@ void main() {
     // Interpolate between the bottom and top edges.
     vec4 pos = mix(bottom, top, gl_TessCoord.y);
 
-    // Apply the MVP transformation.
-    gl_Position = MVP * pos;
+    gl_Position = pos;
 }

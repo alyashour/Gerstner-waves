@@ -20,7 +20,6 @@ using namespace glm;
 #include <vector>
 
 #include "PlaneMesh.hpp"
-#include "LoadBMP.hpp"
 #include "CamControls.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
