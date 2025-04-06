@@ -153,6 +153,7 @@ public:
 			"shaders/vertex.glsl",
 			"shaders/tess_control.glsl",
 			"shaders/tess_eval.glsl",
+			"shaders/geo.glsl",
 			"shaders/fragment.glsl"
 		);
 		
@@ -168,19 +169,21 @@ public:
 		// calculate MVP
 		glm::mat4 M = glm::mat4(1.0f);  
 		glm::mat4 MVP = P * V * M;
-		GLint mvpLocation = glGetUniformLocation(shaderProgramID, "MVP");
-		if (mvpLocation == -1) {
-			std::cerr << "MVP uniform not found!" << std::endl;
-			exit(1);
-		} 
 	
 		//Bind some stuff
 		GL_CHECK(glUseProgram(shaderProgramID));
 		GL_CHECK(glBindVertexArray(vao));
 
 		// set the mvp
+		GLint mvpLocation = glGetUniformLocation(shaderProgramID, "MVP");
 		glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(MVP));
 		
+		// set the tess levels
+		GLint innerTessLocation = glGetUniformLocation(shaderProgramID, "innerTess");
+		GLint outerTessLocation = glGetUniformLocation(shaderProgramID, "outerTess");
+		glUniform1f(innerTessLocation, 16);
+		glUniform1f(outerTessLocation, 16);
+
 		// set the patch and draw
 		GL_CHECK(glPatchParameteri(GL_PATCH_VERTICES, 4));
 		GL_CHECK(glDrawElements(GL_PATCHES, numIndices, GL_UNSIGNED_INT, (void*)0));

@@ -235,9 +235,11 @@ GLuint LoadShaders(const char *vertex_file_path, const char *geo_file_path, cons
 }
 
 // Utility function to load a shader file's contents into a std::string.
-std::string readFile(const char* filePath) {
+std::string readFile(const char *filePath)
+{
     std::ifstream fileStream(filePath, std::ios::in);
-    if (!fileStream.is_open()) {
+    if (!fileStream.is_open())
+    {
         std::cerr << "Could not open file " << filePath << std::endl;
         return "";
     }
@@ -248,7 +250,8 @@ std::string readFile(const char* filePath) {
 }
 
 // Compiles a shader of a given type from source code.
-GLuint compileShader(const char* source, GLenum shaderType) {
+GLuint compileShader(const char *source, GLenum shaderType)
+{
     GLuint shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, &source, nullptr);
     glCompileShader(shader);
@@ -256,35 +259,42 @@ GLuint compileShader(const char* source, GLenum shaderType) {
     // Check for compile errors.
     GLint success;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
+    if (!success)
+    {
         char infoLog[512];
         glGetShaderInfoLog(shader, sizeof(infoLog), nullptr, infoLog);
-        std::cerr << "ERROR::SHADER_COMPILATION_ERROR of type (" 
-                  << shaderType << "):\n" << infoLog << std::endl;
+        std::cerr << "ERROR::SHADER_COMPILATION_ERROR of type ("
+                  << shaderType << "):\n"
+                  << infoLog << std::endl;
     }
     return shader;
 }
 
-// Creates a shader program from 4 shader files.
-GLuint createShaderProgram(const char* vertexPath, 
-                           const char* tessControlPath, 
-                           const char* tessEvalPath, 
-                           const char* fragmentPath) {
+// Creates a shader program from 5 shader files (vertex, tessellation control, tessellation evaluation, geometry, and fragment).
+GLuint createShaderProgram(const char *vertexPath,
+                           const char *tessControlPath,
+                           const char *tessEvalPath,
+                           const char *geoPath,
+                           const char *fragmentPath)
+{
     // Load shader source code from files.
     std::string vertexCode = readFile(vertexPath);
     std::string tessControlCode = readFile(tessControlPath);
     std::string tessEvalCode = readFile(tessEvalPath);
+    std::string geoCode = readFile(geoPath);
     std::string fragmentCode = readFile(fragmentPath);
 
-    const char* vertexSource = vertexCode.c_str();
-    const char* tessControlSource = tessControlCode.c_str();
-    const char* tessEvalSource = tessEvalCode.c_str();
-    const char* fragmentSource = fragmentCode.c_str();
+    const char *vertexSource = vertexCode.c_str();
+    const char *tessControlSource = tessControlCode.c_str();
+    const char *tessEvalSource = tessEvalCode.c_str();
+    const char *geoSource = geoCode.c_str();
+    const char *fragmentSource = fragmentCode.c_str();
 
     // Compile each shader.
     GLuint vertexShader = compileShader(vertexSource, GL_VERTEX_SHADER);
     GLuint tessControlShader = compileShader(tessControlSource, GL_TESS_CONTROL_SHADER);
     GLuint tessEvalShader = compileShader(tessEvalSource, GL_TESS_EVALUATION_SHADER);
+    GLuint geoShader = compileShader(geoSource, GL_GEOMETRY_SHADER);
     GLuint fragmentShader = compileShader(fragmentSource, GL_FRAGMENT_SHADER);
 
     // Create the shader program and attach all shaders.
@@ -292,26 +302,29 @@ GLuint createShaderProgram(const char* vertexPath,
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, tessControlShader);
     glAttachShader(shaderProgram, tessEvalShader);
+    glAttachShader(shaderProgram, geoShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
 
     // Check for linking errors.
     GLint success;
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
+    if (!success)
+    {
         char infoLog[512];
         glGetProgramInfoLog(shaderProgram, sizeof(infoLog), nullptr, infoLog);
-        std::cerr << "ERROR::PROGRAM_LINKING_ERROR:\n" << infoLog << std::endl;
+        std::cerr << "ERROR::PROGRAM_LINKING_ERROR:\n"
+                  << infoLog << std::endl;
     }
 
     // Shaders are no longer needed after linking.
     glDeleteShader(vertexShader);
     glDeleteShader(tessControlShader);
     glDeleteShader(tessEvalShader);
+    glDeleteShader(geoShader);
     glDeleteShader(fragmentShader);
 
     return shaderProgram;
 }
-
 
 #endif
