@@ -111,7 +111,7 @@ class PlaneMesh
 	GLuint shaderProgramID;
 
 	// texture
-	GLuint distextID;
+	GLuint distextID, waterTextureID;
 
 	void planeMeshQuads(float min, float max, float stepsize)
 	{
@@ -169,7 +169,7 @@ public:
 	{
 		this->min = min;
 		this->max = max;
-		modelColor = glm::vec4(0, 1.0f, 1.0f, 1.0f);
+		modelColor = glm::vec4(0.6f, 0.9f, 1.0f, 1.0f);
 
 		planeMeshQuads(min, max, stepsize);
 		numVerts = verts.size() / 3;
@@ -229,6 +229,7 @@ public:
 
 		// generate texture
 		distextID = loadTextureFromBMP("assets/displacement-map1.bmp");
+        waterTextureID = loadTextureFromBMP("assets/water.bmp");
 
 		GL_CHECK(glUseProgram(shaderProgramID));
 	}
@@ -257,14 +258,17 @@ public:
 		GLint timeLocation = glGetUniformLocation(shaderProgramID, "time");
 		glUniform1f(timeLocation, (float)glfwGetTime());
 
-		// set texture
-		// Bind your texture to texture unit 0.
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, distextID);
-		// Get the location of the sampler uniform in your shader program.
-		GLint distextSamplerLocation = glGetUniformLocation(shaderProgramID, "distext");
-		// Set the uniform to use texture unit 0.
-		glUniform1i(distextSamplerLocation, 0);
+		// Set up displacement texture
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, distextID);
+        GLint distextSamplerLocation = glGetUniformLocation(shaderProgramID, "distext");
+        glUniform1i(distextSamplerLocation, 0);
+
+        // Set up water texture
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, waterTextureID);
+        GLint waterTexLocation = glGetUniformLocation(shaderProgramID, "waterTexture");
+        glUniform1i(waterTexLocation, 1);
 
 		// Compute view position from the view matrix.
 		glm::mat4 invV = glm::inverse(V);
@@ -285,7 +289,7 @@ public:
 
 		// Set texScale uniform.
 		GLint texScaleLocation = glGetUniformLocation(shaderProgramID, "texScale");
-		glUniform1f(texScaleLocation, 0.1f);
+		glUniform1f(texScaleLocation, 50.0f);
 		
 		// Set texOffset uniform.
 		GLint texOffsetLocation = glGetUniformLocation(shaderProgramID, "texOffset");

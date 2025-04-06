@@ -3,14 +3,16 @@
 layout (triangles) in;
 layout (triangle_strip, max_vertices = 3) out;
 
-// Uniform values common to all vertices.
+// Input from tess eval shader
+in vec2 uv_tes[];
+
+// Output to fragment shader
+out vec3 gsNormal;
+out vec3 gsWorldPos;
+
 uniform mat4 MVP;
 uniform sampler2D distext;
 uniform float time;
-
-// Varyings to pass to the fragment shader.
-out vec3 gsNormal;
-out vec3 gsWorldPos;
 
 // Calculate a triangle’s normal from three positions.
 vec3 GetNormal(vec4 a, vec4 b, vec4 c)
@@ -48,31 +50,28 @@ vec3 Gerstner(vec3 worldpos, float w, float A, float phi, float Q, vec2 D, int N
 
 void main()
 {
-    // Temporary array to hold the new, deformed positions.
     vec4 pos[3];
 
-    // Process each vertex of the incoming triangle.
+    // Process vertices
     for (int i = 0; i < 3; ++i)
     {
-        // Start with the original position.
         pos[i] = gl_in[i].gl_Position;
         
-        // Optionally use the xz of the position as UV coordinates to sample the displacement map.
-        // Adjust scaling/offset as needed.
-        float disp = texture(distext, pos[i].xz).r;
+        // Use the passed UVs to sample displacement
+        float disp = texture(distext, uv_tes[i]).r;
         pos[i].y += disp;
 
-        // Add the contribution of several Gerstner waves.
+        // Add Gerstner waves
         pos[i] += vec4(Gerstner(pos[i].xyz, 4.0, 0.08, 1.1, 0.75, vec2(0.3, 0.6), 4), 0.0);
         pos[i] += vec4(Gerstner(pos[i].xyz, 2.0, 0.05, 1.1, 0.75, vec2(0.2, 0.866), 4), 0.0);
         pos[i] += vec4(Gerstner(pos[i].xyz, 0.6, 0.2, 0.4, 0.1, vec2(0.3, 0.7), 4), 0.0);
         pos[i] += vec4(Gerstner(pos[i].xyz, 0.9, 0.15, 0.4, 0.1, vec2(0.8, 0.1), 4), 0.0);
     }
 
-    // Recalculate the normal for the entire triangle using the modified positions.
+    // Calculate normal for the triangle
     vec3 normal = GetNormal(pos[0], pos[1], pos[2]);
 
-    // Emit each vertex with its updated position, world position, and normal.
+    // Emit vertices
     for (int i = 0; i < 3; ++i)
     {
         gsWorldPos = pos[i].xyz;

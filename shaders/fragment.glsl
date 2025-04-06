@@ -8,34 +8,44 @@ in vec3 gsWorldPos;
 out vec4 color_out;
 
 // Uniforms for lighting calculations.
-uniform vec3 lightPos;    // Light position in world space.
-uniform vec3 viewPos;     // Camera (eye) position in world space.
-uniform vec4 objectColor; // Base color of the object.
+uniform vec3 lightPos;    
+uniform vec3 viewPos;     
+uniform vec4 objectColor; 
+uniform sampler2D waterTexture;
 
 void main()
 { 
-    vec4 lightColor = vec4(1,1,1,1);
+    // Brighter light color
+    vec4 LightColor = vec4(1.2, 1.2, 1.2, 1.0);
 
-    // Normalize the normal interpolated from the geometry shader.
+    vec2 waterUV = gsWorldPos.xz * 0.1;
+    // Boost the water texture colors
+    vec4 MaterialDiffuseColor = texture(waterTexture, waterUV) * vec4(1.2, 1.2, 1.4, 1.0);
+    // Brighter ambient color
+    vec4 MaterialAmbientColor = vec4(0.4, 0.4, 0.5, 1.0) * MaterialDiffuseColor;
+    // Increased specular intensity
+    vec4 MaterialSpecularColor = vec4(0.9, 0.9, 1.0, 1.0);
+
+    // Normalize vectors
     vec3 normal = normalize(gsNormal);
-
-    // Calculate the light direction vector.
     vec3 lightDir = normalize(lightPos - gsWorldPos);
+    vec3 viewDir = normalize(viewPos - gsWorldPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
 
-    // Diffuse component using Lambert's cosine law.
-    float diff = max(dot(normal, lightDir), 0.0);
+    // Calculate cosine terms
+    float cosTheta = max(dot(normal, lightDir), 0.0);
+    float cosAlpha = max(dot(viewDir, reflectDir), 0.0);
     
-    // Ambient component to simulate indirect light.
-    float ambientStrength = 0.1;
-    vec4 ambient = ambientStrength * lightColor;
+    // Increased ambient strength
+    float ambientStrength = 0.5;
+    vec4 ambient = ambientStrength * MaterialDiffuseColor;
 
-    // Specular component for shiny highlights.
-    vec4 viewDir = vec4(normalize(viewPos - gsWorldPos), 0.0f);
-    vec4 reflectDir = vec4(reflect(-lightDir, normal), 0.0f);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    float specularStrength = 0.5;
-    vec4 specular = specularStrength * spec * lightColor;
-
-    // Combine lighting components with the object's base color.
-    color_out = (ambient + diff * lightColor + specular) * objectColor;
+    // Final color calculation with boosted intensity
+    color_out = 
+        MaterialAmbientColor * 1.2 +
+        MaterialDiffuseColor * LightColor * cosTheta * 1.5 +
+        MaterialSpecularColor * LightColor * pow(cosAlpha, 16) * 1.3;
+        
+    // Optional: Add a slight blue tint to the final color
+    color_out = mix(color_out, vec4(0.2, 0.4, 0.8, 1.0), 0.2);
 }

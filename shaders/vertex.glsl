@@ -7,9 +7,13 @@ uniform float texScale;
 uniform vec2 texOffset;
 uniform float time;
 
-void main() {
-    // Pass the vertex position as a vec4 to the next stage.
-    gl_Position = vec4(position, 1.0);
+// Outputs to tess control shader
+out vec2 uv_vs;
 
-    vec2 uv = (position.xz + texOffset + (time * 0.08))/texScale;
+void main() {
+    // Pass the vertex position as a vec4 to the next stage
+    gl_Position = vec4(position, 1.0);
+    
+    // Calculate and pass UV coordinates
+    uv_vs = (position.xz + texOffset + (time * 0.001))/texScale;
 }
