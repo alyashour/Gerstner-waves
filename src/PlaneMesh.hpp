@@ -283,6 +283,14 @@ public:
 		GLint objectColorLocation = glGetUniformLocation(shaderProgramID, "objectColor");
 		glUniform4f(objectColorLocation, objectColor.x, objectColor.y, objectColor.z, objectColor.w);
 
+		// Set texScale uniform.
+		GLint texScaleLocation = glGetUniformLocation(shaderProgramID, "texScale");
+		glUniform1f(texScaleLocation, 0.1f);
+		
+		// Set texOffset uniform.
+		GLint texOffsetLocation = glGetUniformLocation(shaderProgramID, "texOffset");
+		glUniform2f(texOffsetLocation, 0.0f, 0.0f);
+
 		// set the patch and draw
 		GL_CHECK(glPatchParameteri(GL_PATCH_VERTICES, 4));
 		GL_CHECK(glDrawElements(GL_PATCHES, numIndices, GL_UNSIGNED_INT, (void *)0));

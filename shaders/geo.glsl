@@ -63,8 +63,8 @@ void main()
         pos[i].y += disp;
 
         // Add the contribution of several Gerstner waves.
-        pos[i] += vec4(Gerstner(pos[i].xyz, 4.0, 0.08, 1.1, 0.1, vec2(0.3, 0.6), 4), 0.0);
-        pos[i] += vec4(Gerstner(pos[i].xyz, 2.0, 0.05, 1.1, 0.05, vec2(0.2, 0.866), 4), 0.0);
+        pos[i] += vec4(Gerstner(pos[i].xyz, 4.0, 0.08, 1.1, 0.75, vec2(0.3, 0.6), 4), 0.0);
+        pos[i] += vec4(Gerstner(pos[i].xyz, 2.0, 0.05, 1.1, 0.75, vec2(0.2, 0.866), 4), 0.0);
         pos[i] += vec4(Gerstner(pos[i].xyz, 0.6, 0.2, 0.4, 0.1, vec2(0.3, 0.7), 4), 0.0);
         pos[i] += vec4(Gerstner(pos[i].xyz, 0.9, 0.15, 0.4, 0.1, vec2(0.8, 0.1), 4), 0.0);
     }
