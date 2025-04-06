@@ -1,0 +1,6 @@
+# BUILD
+build/*
+
+# IDE
+.vscode/
+.idea/
