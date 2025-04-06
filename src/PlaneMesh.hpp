@@ -251,8 +251,8 @@ public:
 		// set the tess levels
 		GLint innerTessLocation = glGetUniformLocation(shaderProgramID, "innerTess");
 		GLint outerTessLocation = glGetUniformLocation(shaderProgramID, "outerTess");
-		glUniform1f(innerTessLocation, 16);
-		glUniform1f(outerTessLocation, 16);
+		glUniform1f(innerTessLocation, 64);
+		glUniform1f(outerTessLocation, 64);
 
 		// set the time
 		GLint timeLocation = glGetUniformLocation(shaderProgramID, "time");
